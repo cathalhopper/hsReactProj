@@ -5,17 +5,7 @@ import axios from 'axios'
 
 function App() {
   const [count, setCount] = useState(0)
-  const [contactData, setContactData] = useState([])
-  const headers = `Authorization: Bearer ${import.meta.env.VITE_apiKey}`
-  const client = axios.create({
-    baseURL: "https://api.hubapi.com"
-  })
 
-  client.get("/crm/v3/objects/contacts", {headers: {headers}})
-  .then((response) => {
-    setContactData(response.data)
-    console.log(contactData)
-  })
 
   return (
     <>
