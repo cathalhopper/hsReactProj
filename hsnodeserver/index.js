@@ -69,15 +69,17 @@ app.get("/api/getdealproperties", (req, res) => {
 
 app.get("/api/getquotes", (req, res) => {
   
-  const fullResults = [];
+  let fullResults = [];
   client.get(`/crm/v4/objects/deals/${req.query.dealId}/associations/quotes`, {headers: headers})
   .then((response) => {
 
     const { results } = response.data;
-    console.log("ok we got the associated quotes " + results);
-    for (const i in results) {
-      client.get(`/crm/v3/objects/quotes/${results[i].id}`, {headers: headers})
+    console.log(results);
+
+    for (const item of results) {
+      client.get(`/crm/v3/objects/quotes/${item.toObjectId}`, {headers: headers})
       .then((response) => {
+        console.log(response.data);
         fullResults.push(response.data);
       })
       .catch(function (error) {
@@ -93,7 +95,7 @@ app.get("/api/getquotes", (req, res) => {
         console.log("error config " + error.config);
       });
     }
-    res.json(fullResults);
+    res.send(JSON.stringify(fullResults));
   })
   .catch(function (error) {
     if (error.response) {
