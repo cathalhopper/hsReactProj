@@ -67,35 +67,34 @@ app.get("/api/getdealproperties", (req, res) => {
   });
 });
 
-app.get("/api/getquotes", (req, res) => {
+app.get("/api/getquotes", async (req, res) => {
   
   let fullResults = [];
   client.get(`/crm/v4/objects/deals/${req.query.dealId}/associations/quotes`, {headers: headers})
   .then((response) => {
 
     const { results } = response.data;
-    console.log(results);
-
-    for (const item of results) {
-      client.get(`/crm/v3/objects/quotes/${item.toObjectId}`, {headers: headers})
-      .then((response) => {
-        console.log(response.data);
-        fullResults.push(response.data);
-      })
-      .catch(function (error) {
-        if (error.response) {
-          console.log("this is error data " + error.response.data);
-          console.log("this is error status " + error.response.status);
-          console.log("this is error headers " + error.response.headers);
-        } else if (error.request) {
-          console.log("this is error request " + error.request);
-        } else {
-          console.log('Error ', error.message);
-        }
-        console.log("error config " + error.config);
-      });
-    }
-    res.send(JSON.stringify(fullResults));
+    async function getStuff() {
+      for (const item of results) {
+        const contents = await client.get(`/crm/v3/objects/quotes/${item.toObjectId}`, {headers: headers})
+        .catch(function (error) {
+          if (error.response) {
+            console.log("this is error data " + error.response.data);
+            console.log("this is error status " + error.response.status);
+            console.log("this is error headers " + error.response.headers);
+          } else if (error.request) {
+            console.log("this is error request " + error.request);
+          } else {
+            console.log('Error ', error.message);
+          }
+          console.log("error config " + error.config);
+        });
+        fullResults.push(contents.data);
+      }
+    res.send(fullResults);
+  }
+  getStuff();
+    
   })
   .catch(function (error) {
     if (error.response) {
